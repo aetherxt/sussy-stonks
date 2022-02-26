@@ -29,6 +29,7 @@ action = "S"
 profit = 0
 accumprofit = []
 a = 0
+buyprice = 0
 
 def actionmsg():
     global prevclose, accumprofit
@@ -37,16 +38,35 @@ def actionmsg():
     print(f"{list(ticker.index)[tickerloc]}: {round(ticker['Close'][tickerloc])}, {action}, {round(profit, 3)}")
     prevclose = round(ticker['Close'][tickerloc], 3)
 
+def getchange():
+    return ((ticker['Close'][tickerloc-3] - ticker['Close'][tickerloc]) / ticker['Close'][tickerloc-3]) * 100.0
+
+def percentincrease():
+    return ((buyprice - ticker['Close'][tickerloc]) / ticker['Close'][tickerloc]) * 100.0
+
+def mabuy():
+    return ticker['MA20'][tickerloc] < ticker['MA50'][tickerloc] and ticker['MA10'][tickerloc] < ticker['MA50'][tickerloc]
+
+def masell():
+    return getchange() >= 5 and (ticker['MA10'][tickerloc] > ticker['MA50'][tickerloc]) and percentincrease() >= 15
+
+def rsibuy():
+    return ticker['RSI'][tickerloc] <= 40
+
+def rsisell():
+    return ticker['RSI'][tickerloc] >= 70
+
 for ma20 in ticker['MA20']:
     tickerloc += 1
     if not math.isnan(ma20):
-        if (ma20 < ticker['MA50'][tickerloc] and ticker['MA10'][tickerloc] < ticker['MA50'][tickerloc]) or (ticker['RSI'][tickerloc] < 30):
+        if (mabuy()) or (rsibuy()):
             if action == "B":
                 pass
             else: 
                 action = "B"
+                buyprice = ticker['Close'][tickerloc]
                 actionmsg()
-        elif (ma20 > ticker['MA10'][tickerloc]) or (ticker['RSI'][tickerloc] > 70):
+        elif (masell()) or (rsisell()):
             if action == "S":
                 pass
             else:
@@ -58,3 +78,4 @@ for x in accumprofit:
     a += x
 
 print(a)
+print(masell())
