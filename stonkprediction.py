@@ -8,12 +8,6 @@ import json
 import talib as ta
 import math
 
-myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-mydb = myclient["stoccs"]
-print("ok")
-
-mycol = mydb["data"]
-
 ticker = yf.download("MSFT", period = "2y")
 
 ticker['RSI'] = ta.RSI(ticker['Close'], timeperiod=14)
