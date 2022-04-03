@@ -2,13 +2,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
-import pymongo
 from datetime import datetime
 import json 
 import talib as ta
 import math
 
-ticker = yf.download("MSFT", period = "2y")
+ticker = yf.download("2800.hk", period = "1y")
 
 ticker['RSI'] = ta.RSI(ticker['Close'], timeperiod=14)
 ticker['MA10'] = ta.SMA(ticker['Close'], timeperiod=10)
@@ -27,7 +26,10 @@ buyprice = 0
 
 def actionmsg():
     global prevclose, accumprofit
-    profit = ticker['Close'][tickerloc] - prevclose
+    if action == "B":
+        profit = 0
+    else:
+        profit = ticker['Close'][tickerloc] - prevclose
     accumprofit.append(profit)
     print(f"{list(ticker.index)[tickerloc]}: {round(ticker['Close'][tickerloc])}, {action}, {round(profit, 3)}")
     prevclose = round(ticker['Close'][tickerloc], 3)
